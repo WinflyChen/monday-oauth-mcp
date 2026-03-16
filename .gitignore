@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Sensitive data
+tokens.json
+secrets.json
+
+# Uploads
+uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.mov
+*.avi
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.zip
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build
+dist/
+build/
+out/
+
+# Test
+test-results/
+coverage/
+
+# Temporary
+temp/
+tmp/
+*.tmp

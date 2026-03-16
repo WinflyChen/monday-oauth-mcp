@@ -1,0 +1,37 @@
+{
+  "name": "monday-oauth-mcp",
+  "version": "1.0.0",
+  "description": "OAuth MCP with file upload capabilities for Monday.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "upload": "node upload-server.js",
+    "upload:dev": "nodemon upload-server.js",
+    "test": "node test.js",
+    "setup": "node setup.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": [
+    "monday",
+    "oauth",
+    "mcp",
+    "upload",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.5",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "multer": "^1.4.5-lts.1",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

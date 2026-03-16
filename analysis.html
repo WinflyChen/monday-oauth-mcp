@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monday.com 與 MaiAgent 整合分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .issue-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .solution-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .challenge-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .architecture {
+            background: #e7f3ff;
+            border: 2px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .architecture pre {
+            margin: 0;
+        }
+        
+        .flow-diagram {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .step {
+            display: inline-block;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 5px;
+            font-weight: 500;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .image-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .image-caption {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .key-point {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .key-point strong {
+            color: #1976d2;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Monday.com 與 MaiAgent 整合</h1>
+            <p>技術分析與實現方案</p>
+        </div>
+        
+        <div class="content">
+            <!-- 核心挑戰 -->
+            <div class="section">
+                <h2>🎯 核心挑戰</h2>
+                
+                <div class="issue-box">
+                    <strong>主要問題：</strong>
+                    <p style="margin-top: 10px;">Monday.com 使用 <span class="highlight">OAuth 認證</span>，每個用戶需要授權特定的 Token。單純使用 MCP 連接不足以解決此問題，因為用戶必須：</p>
+                    <ol style="margin-top: 10px;">
+                        <li>登入 Monday.com</li>
+                        <li>授權 Token 給系統</li>
+                        <li>通過 Monday Callback 將 Token 傳回</li>
+                    </ol>
+                </div>
+                
+                <div class="challenge-box">
+                    <strong>技術難點：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>OAuth Token 需要綁定到特定用戶</li>
+                        <li>Monday 的 Callback 需要知道目標用戶身份</li>
+                        <li>Token 必須傳入 MCP 工具的 Header 中</li>
+                        <li>需要維護用戶與 Token 的映射關係</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 整合架構 -->
+            <div class="section">
+                <h2>🏗️ 整合架構</h2>
+                
+                <h3>當前問題分析</h3>
+                <p>直接集成方式的瓶頸：</p>
+                <div class="architecture">
+                    <pre>MCP Tool ──X──> Monday API
+                  (缺少用戶身份認證)
+                  
+MaiAgent ──> MCP Tool ──X──> Monday
+                         (Token 不匹配)</pre>
+                </div>
+                
+                <h3>建議的解決方案：Middleware 層</h3>
+                <p>需要引入中間層來處理 OAuth Callback 和 Token 管理：</p>
+                <div class="flow-diagram">
+                    <div class="step">用戶登入</div>
+                    <div class="arrow">→</div>
+                    <div class="step">Monday OAuth</div>
+                    <div class="arrow">→</div>
+                    <div class="step">Middleware</div>
+                    <div class="arrow">→</div>
+                    <div class="step">Token 存儲</div>
+                </div>
+                
+                <div class="architecture">
+                    <pre>┌─────────────────────────────────────────┐
+│ User Interface (用戶授權)              │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────┐
+│ Monday OAuth Server                     │
+│ - 認證用戶身份                          │
+│ - 生成 OAuth Token                      │
+└────────────────┬────────────────────────┘
+                 │ (Callback)
+                 ▼
+┌─────────────────────────────────────────┐
+│ Middleware / API Gateway                │
+│ - 接收 Callback                         │
+│ - 綁定 Token 到用戶                     │
+│ - 調用 MaiAgent API                     │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────┐
+│ MaiAgent System                         │
+│ - 存儲用戶 Token                        │
+│ - 提供給 MCP 工具使用                   │
+└────────────────┬────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────┐
+│ MCP Tool (with Token in Header)         │
+│ - 調用 Monday API                       │
+│ - 使用已授權的 Token                    │
+└─────────────────────────────────────────┘</pre>
+                </div>
+            </div>
+            
+            <!-- 實現步驟 -->
+            <div class="section">
+                <h2>📋 Step 1-4 分析：實現流程</h2>
+                
+                <h3>Step 1: Monday MCP 基礎設置</h3>
+                <div class="key-point">
+                    <strong>目標：</strong>建立 MCP 連接到 Monday.com<br>
+                    <strong>內容：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>安裝 Monday MCP 客戶端</li>
+                        <li>配置基本連接參數</li>
+                        <li>測試 API 連通性</li>
+                    </ul>
+                </div>
+                
+                <h3>Step 2: OAuth 認證流程設置</h3>
+                <div class="key-point">
+                    <strong>目標：</strong>完成 OAuth 認證機制設置<br>
+                    <strong>內容：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>註冊 OAuth App 在 Monday</li>
+                        <li>配置 Redirect URI（指向 Middleware）</li>
+                        <li>獲取 Client ID 和 Client Secret</li>
+                        <li>設置使用者授權頁面</li>
+                    </ul>
+                </div>
+                
+                <h3>Step 3: Middleware 開發與 Callback 處理</h3>
+                <div class="key-point">
+                    <strong>目標：</strong>建立中間層處理 OAuth Callback<br>
+                    <strong>內容：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>開發 HTTP Endpoint 接收 Callback</li>
+                        <li>驗證 Callback 簽名（安全性）</li>
+                        <li>交換授權碼獲取 Access Token</li>
+                        <li>解析用戶信息</li>
+                    </ul>
+                </div>
+                
+                <h3>Step 4: Token 管理與 MCP Header 配置</h3>
+                <div class="key-point">
+                    <strong>目標：</strong>整合 Token 到 MaiAgent 與 MCP<br>
+                    <strong>內容：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>在 MaiAgent 中存儲用戶的 OAuth Token</li>
+                        <li>配置 MCP 工具的授權 Header</li>
+                        <li>在每次調用時動態注入正確的 Token</li>
+                        <li>處理 Token 刷新和過期</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 技術實現細節 -->
+            <div class="section">
+                <h2>⚙️ 技術實現方案</h2>
+                
+                <h3>1. Middleware / API Gateway 層</h3>
+                <div class="solution-box">
+                    <strong>功能職責：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li><span class="highlight">OAuth Callback 接收</span> - 監聽來自 Monday 的回調</li>
+                        <li><span class="highlight">Token 交換</span> - 將授權碼交換為 Access Token</li>
+                        <li><span class="highlight">用戶綁定</span> - 將 Token 與系統內使用者綁定</li>
+                        <li><span class="highlight">MaiAgent 集成</span> - 調用 MaiAgent API 儲存 Token</li>
+                        <li><span class="highlight">Token 刷新</span> - 管理 Refresh Token 和過期時間</li>
+                    </ul>
+                </div>
+                
+                <h3>2. Token 存儲架構</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>存儲位置</th>
+                                <th>用途</th>
+                                <th>安全性考慮</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MaiAgent Database</td>
+                                <td>存儲用戶的 OAuth Token</td>
+                                <td>使用加密存儲敏感信息</td>
+                            </tr>
+                            <tr>
+                                <td>MCP Context Headers</td>
+                                <td>在調用時提供 Token 給 Monday API</td>
+                                <td>確保 HTTPS 傳輸</td>
+                            </tr>
+                            <tr>
+                                <td>Session/Cache</td>
+                                <td>臨時緩存當前活躍 Token</td>
+                                <td>設置合適的過期時間</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3>3. 調用流程</h3>
+                <div class="architecture">
+                    <pre>用戶請求流程：
+
+1. MaiAgent 接收用戶命令
+   └─> 調用 MCP Tool (monday_api)
+
+2. MCP Tool 執行前
+   └─> 查詢用戶 ID
+   └─> 從 MaiAgent 獲取對應的 OAuth Token
+   └─> 檢查 Token 有效性
+   └─> 如需刷新，調用 Refresh Token API
+
+3. 準備 HTTP 請求
+   └─> 在 Header 中注入: Authorization: Bearer {TOKEN}
+   └─> Monday API Header 要求
+   └─> 其他必要的 Header 參數
+
+4. 調用 Monday API
+   └─> 執行實際操作
+   └─> 返回結果給 MaiAgent</pre>
+                </div>
+            </div>
+            
+            <!-- 安全性考慮 -->
+            <div class="section">
+                <h2>🔒 安全性考慮</h2>
+                
+                <div class="challenge-box">
+                    <strong>關鍵安全點：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li><span class="highlight">HTTPS Only</span> - 所有涉及 Token 的通訊必須使用 HTTPS</li>
+                        <li><span class="highlight">Token 加密存儲</span> - 在數據庫中使用加密存儲 OAuth Token</li>
+                        <li><span class="highlight">Callback 驗證</span> - 驗證 Callback 請求的來源和簽名</li>
+                        <li><span class="highlight">Token 隔離</span> - 確保每個用戶只能訪問自己的 Token</li>
+                        <li><span class="highlight">Rate Limiting</span> - 防止暴力破解和濫用</li>
+                        <li><span class="highlight">Audit Logging</span> - 記錄所有 Token 相關操作</li>
+                        <li><span class="highlight">過期時間管理</span> - 實施短期過期時間和 Refresh Token 機制</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 可能的挑戰 -->
+            <div class="section">
+                <h2>⚠️ 可能的挑戰與注意事項</h2>
+                
+                <h3>1. Token 生命周期管理</h3>
+                <div class="issue-box">
+                    <strong>問題：</strong>OAuth Token 有過期時間，需要定期刷新<br>
+                    <strong>解決方案：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>存儲 Refresh Token</li>
+                        <li>實施自動刷新機制</li>
+                        <li>處理刷新失敗（可能需要重新授權）</li>
+                    </ul>
+                </div>
+                
+                <h3>2. 多個 Monday 工作區</h3>
+                <div class="issue-box">
+                    <strong>問題：</strong>用戶可能有多個 Monday 工作區，每個需要不同訪問權限<br>
+                    <strong>解決方案：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>在 Token 中記錄工作區信息</li>
+                        <li>支持多個 Token 存儲（一個用戶多個工作區）</li>
+                        <li>在 MCP 調用時指定目標工作區</li>
+                    </ul>
+                </div>
+                
+                <h3>3. MaiAgent Integration Point</h3>
+                <div class="issue-box">
+                    <strong>問題：</strong>MaiAgent 需要提供 API 來存儲和檢索用戶 Token<br>
+                    <strong>解決方案：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>擴展 MaiAgent API 支持 Token 管理</li>
+                        <li>提供 Token 查詢/更新/刪除 端點</li>
+                        <li>確保 Token 隔離和權限控制</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 實施建議 -->
+            <div class="section">
+                <h2>💡 實施建議</h2>
+                
+                <h3>推薦架構</h3>
+                <div class="solution-box">
+                    <strong>分步實施方案：</strong>
+                    <ol style="margin-top: 10px;">
+                        <li><strong>階段 1：基礎設置</strong>
+                            <ul>
+                                <li>在 Monday 創建 OAuth 應用</li>
+                                <li>部署簡單的 Callback 接收端點</li>
+                                <li>驗證 OAuth 流程</li>
+                            </ul>
+                        </li>
+                        <li><strong>階段 2：Middleware 開發</strong>
+                            <ul>
+                                <li>開發完整的 Middleware 層</li>
+                                <li>實施 Token 交換邏輯</li>
+                                <li>集成 MaiAgent API</li>
+                            </ul>
+                        </li>
+                        <li><strong>階段 3：MCP 集成</strong>
+                            <ul>
+                                <li>配置 MCP 工具的授權機制</li>
+                                <li>實施 Header 注入邏輯</li>
+                                <li>測試端到端流程</li>
+                            </ul>
+                        </li>
+                        <li><strong>階段 4：安全加固</strong>
+                            <ul>
+                                <li>加密 Token 存儲</li>
+                                <li>實施 Token 刷新機制</li>
+                                <li>添加監控和日誌記錄</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+                
+                <h3>技術棧建議</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>組件</th>
+                            <th>建議技術</th>
+                            <th>說明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Middleware</td>
+                            <td>Node.js/Express 或 Python/FastAPI</td>
+                            <td>快速開發和部署</td>
+                        </tr>
+                        <tr>
+                            <td>Token 存儲</td>
+                            <td>加密的數據庫（PostgreSQL + 加密庫）</td>
+                            <td>安全存儲敏感信息</td>
+                        </tr>
+                        <tr>
+                            <td>緩存層</td>
+                            <td>Redis</td>
+                            <td>減少數據庫查詢</td>
+                        </tr>
+                        <tr>
+                            <td>日誌監控</td>
+                            <td>ELK Stack 或 云日誌服務</td>
+                            <td>追蹤和調試</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 數據流範例 -->
+            <div class="section">
+                <h2>📊 數據流範例</h2>
+                
+                <h3>OAuth 授權流程</h3>
+                <div class="architecture">
+                    <pre>用戶界面 → Redirect to Monday OAuth
+   ↓
+Monday Login & Consent
+   ↓
+Callback → Middleware
+   ↓
+Token Exchange (Code → Access Token)
+   ↓
+MaiAgent API (Save Token)
+   ↓
+Success: 用戶已授權，可以開始使用</pre>
+                </div>
+                
+                <h3>API 調用流程</h3>
+                <div class="architecture">
+                    <pre>MaiAgent Command
+   ↓
+MCP Tool Invoked
+   ↓
+Query MaiAgent: Get User's Monday Token
+   ↓
+Check Token Validity
+   ├─ Valid → Use it
+   └─ Expired → Refresh & Update
+   ↓
+Call Monday API with Token in Header
+   Authorization: Bearer {OAUTH_TOKEN}
+   ↓
+Return Result to MaiAgent</pre>
+                </div>
+            </div>
+            
+            <!-- 總結 -->
+            <div class="section">
+                <h2>📌 總結</h2>
+                
+                <div class="key-point">
+                    <strong>核心要點：</strong>
+                    <p style="margin-top: 10px;">
+                        Monday.com 整合的關鍵在於正確處理 <span class="highlight">OAuth 認證和 Token 管理</span>。
+                        不能簡單地將 MCP 連接到 Monday，而是需要：
+                    </p>
+                    <ol style="margin-top: 10px;">
+                        <li><strong>用戶授權</strong> - 每個用戶必須通過 OAuth 認證</li>
+                        <li><strong>Token 綁定</strong> - 將 Token 與特定用戶關聯</li>
+                        <li><strong>Middleware 層</strong> - 處理 Callback 和 Token 交換</li>
+                        <li><strong>MaiAgent 集成</strong> - 存儲和管理 Token</li>
+                        <li><strong>MCP Header 配置</strong> - 在 API 調用時注入 Token</li>
+                    </ol>
+                </div>
+                
+                <div class="solution-box">
+                    <strong>下一步行動：</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>✅ 註冊 Monday OAuth App</li>
+                        <li>✅ 設計 Middleware 架構</li>
+                        <li>✅ 定義 MaiAgent API 擴展</li>
+                        <li>✅ 實施 Token 存儲方案</li>
+                        <li>✅ 開發和測試整個流程</li>
+                        <li>✅ 部署和監控</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Monday.com 與 MaiAgent 整合分析報告</strong></p>
+            <p>生成時間：2026年3月16日</p>
+            <p>此分析基於 OAuth 認證流程和 API 集成最佳實踐</p>
+        </div>
+    </div>
+</body>
+</html>
