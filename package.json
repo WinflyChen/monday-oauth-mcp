@@ -6,8 +6,12 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "mcp": "node mcp-server.js",
+    "mcp:dev": "nodemon mcp-server.js",
     "upload": "node upload-server.js",
     "upload:dev": "nodemon upload-server.js",
+    "telegram": "node telegram-bridge.js",
+    "telegram:dev": "nodemon telegram-bridge.js",
     "test": "node test.js",
     "setup": "node setup.js"
   },

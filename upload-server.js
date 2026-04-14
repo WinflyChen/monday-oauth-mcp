@@ -10,7 +10,7 @@ const FormData = require('form-data');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.MCP_PORT || 3002;
+const PORT = process.env.UPLOAD_PORT || 3002;
 
 // ==================== 設置存儲 ====================
 
@@ -59,29 +59,34 @@ app.use((req, res, next) => {
 // ==================== 工具函數 ====================
 
 /**
- * 上傳文件到 Monday.com
+ * 上傳文件到 Monday.com 的指定欄位（真實二進制上傳，顯示縮圖）
+ * 使用 multipart form-data 上傳，才能在看板上看到圖片預覽
  */
-async function uploadFileToMonday(filePath, fileName, accessToken) {
+async function uploadFileBinaryToColumn(itemId, columnId, filePath, fileName, accessToken) {
     try {
-        const fileStream = fs.createReadStream(filePath);
-        const form = new FormData();
-        form.append('file', fileStream);
+        const formData = new FormData();
+        const query = `mutation ($file: File!) { add_file_to_column(item_id: ${itemId}, column_id: "${columnId}", file: $file) { id } }`;
+        formData.append('query', query);
+        formData.append('variables[file]', fs.createReadStream(filePath), fileName);
 
-        const response = await axios.post(
-            'https://api.monday.com/v2/files',
-            form,
-            {
-                headers: {
-                    ...form.getHeaders(),
-                    'Authorization': accessToken
-                }
-            }
-        );
+        const response = await axios.post('https://api.monday.com/v2/file', formData, {
+            headers: {
+                ...formData.getHeaders(),
+                'Authorization': `Bearer ${accessToken}`
+            },
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity
+        });
 
-        return response.data;
+        const json = response.data;
+        if (json.errors) {
+            throw new Error(json.errors[0].message);
+        }
+
+        return json.data.add_file_to_column;
     } catch (error) {
-        console.error('Error uploading file to Monday:', error);
-        throw new Error(`Failed to upload file: ${error.message}`);
+        console.error('Error uploading binary file to Monday:', error.response?.data || error.message);
+        throw new Error(`Failed to upload file: ${error.response?.data?.errors ? JSON.stringify(error.response.data.errors) : error.message}`);
     }
 }
 
@@ -111,7 +116,7 @@ async function createBoard(boardName, accessToken) {
             { query },
             {
                 headers: {
-                    'Authorization': accessToken,
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 }
             }
@@ -129,9 +134,44 @@ async function createBoard(boardName, accessToken) {
 }
 
 /**
- * 添加文件到項目
+ * 查詢看板中所有欄位（用於找出 Files 欄位 ID）
  */
-async function addFileToItem(boardId, itemId, fileUrl, accessToken) {
+async function getBoardColumns(boardId, accessToken) {
+    const query = `
+        query {
+            boards(ids: [${boardId}]) {
+                columns {
+                    id
+                    title
+                    type
+                }
+            }
+        }
+    `;
+    const response = await axios.post(
+        'https://api.monday.com/v2',
+        { query },
+        { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+    );
+    if (response.data.errors) throw new Error(response.data.errors[0].message);
+    return response.data.data.boards[0]?.columns || [];
+}
+
+/**
+ * 自動從看板欄位中找出第一個 file 類型的欄位 ID
+ */
+async function autoDetectFileColumnId(boardId, accessToken) {
+    const columns = await getBoardColumns(boardId, accessToken);
+    const fileColumn = columns.find(c => c.type === 'file');
+    if (!fileColumn) throw new Error(`看板 ${boardId} 中找不到 File 類型欄位，請先在 Monday 新增一個「文件」欄位`);
+    console.log(`🔍 自動偵測到 File 欄位: ${fileColumn.title} (ID: ${fileColumn.id})`);
+    return fileColumn.id;
+}
+
+/**
+ * 使用 URL 方式添加文件到項目（只顯示連結，非縮圖）
+ */
+async function addFileToItemByUrl(itemId, fileUrl, accessToken) {
     const query = `
         mutation {
             add_file_to_item(
@@ -143,38 +183,14 @@ async function addFileToItem(boardId, itemId, fileUrl, accessToken) {
         }
     `;
 
-    try {
-        const response = await axios.post(
-            'https://api.monday.com/v2',
-            { query },
-            {
-                headers: {
-                    'Authorization': accessToken,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+    const response = await axios.post(
+        'https://api.monday.com/v2',
+        { query },
+        { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+    );
 
-        if (response.data.errors) {
-            throw new Error(JSON.stringify(response.data.errors));
-        }
-
-        return response.data.data.add_file_to_item;
-    } catch (error) {
-        console.error('Error adding file to item:', error);
-        throw new Error(`Failed to add file: ${error.message}`);
-    }
-}
-
-/**
- * 更新項目的文件欄位
- */
-async function updateItemFileField(boardId, itemId, fileUrl, columnId, accessToken) {
-    // Monday 不原生支持直接上傳文件到 File 欄位
-    // 我們使用替代方案：添加評論或更新相關欄位
-    
-    // 方案 1: 使用 add_file_to_item（推薦）
-    return addFileToItem(boardId, itemId, fileUrl, accessToken);
+    if (response.data.errors) throw new Error(JSON.stringify(response.data.errors));
+    return response.data.data.add_file_to_item;
 }
 
 /**
@@ -265,19 +281,22 @@ class OAuthService {
             response_type: 'code',
             redirect_uri: this.redirectUri,
             state: state || 'default',
-            scope: 'me:read boards:read boards:write items:read items:write files:write'
+            scope: 'me:read boards:read boards:write updates:write'
         });
         return `${this.authEndpoint}?${params.toString()}`;
     }
 
     async exchangeCodeForToken(code) {
         try {
-            const response = await axios.post(this.tokenEndpoint, {
-                client_id: this.clientId,
-                client_secret: this.clientSecret,
-                code: code,
-                redirect_uri: this.redirectUri,
-                grant_type: 'authorization_code'
+            const params = new URLSearchParams();
+            params.append('client_id', this.clientId);
+            params.append('client_secret', this.clientSecret);
+            params.append('code', code);
+            params.append('redirect_uri', this.redirectUri);
+            params.append('grant_type', 'authorization_code');
+
+            const response = await axios.post(this.tokenEndpoint, params, {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             });
 
             return {
@@ -432,6 +451,9 @@ app.get('/oauth/authorize', (req, res) => {
 app.get('/oauth/callback', async (req, res) => {
     try {
         const { code, error } = req.query;
+        console.log('\n=== OAuth Callback ===');
+        console.log('Code:', code ? code.substring(0,10) + '...' : 'MISSING');
+        console.log('Error:', error || 'none');
 
         if (error) {
             return res.status(400).json({ error: `Callback error: ${error}` });
@@ -441,37 +463,63 @@ app.get('/oauth/callback', async (req, res) => {
             return res.status(400).json({ error: 'No authorization code' });
         }
 
-        const tokenData = await oauthService.exchangeCodeForToken(code);
-        const accessToken = tokenData.access_token;
-        const userInfo = await mondayApi.getUserInfo(accessToken);
-        const userId = userInfo.me.id;
+        // Step 1: Exchange code for token
+        console.log('\n[Step 1] Exchanging code for token...');
+        const params = new URLSearchParams();
+        params.append('client_id', process.env.MONDAY_CLIENT_ID);
+        params.append('client_secret', process.env.MONDAY_CLIENT_SECRET);
+        params.append('code', code);
+        params.append('redirect_uri', process.env.MONDAY_REDIRECT_URI || 'http://localhost:3002/oauth/callback');
+        params.append('grant_type', 'authorization_code');
 
-        tokenData.user_info = userInfo.me;
-        const savedToken = tokenManager.saveUserToken(userId, tokenData);
+        const tokenResponse = await axios.post('https://auth.monday.com/oauth2/token', params, {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
 
-        const successHtml = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Authorization Successful</title>
-                <style>
-                    body { font-family: Arial; margin: 40px; }
-                    .success { color: green; padding: 20px; border: 1px solid green; border-radius: 5px; }
-                </style>
-            </head>
-            <body>
-                <div class="success">
-                    <h1>✅ Authorization Successful!</h1>
-                    <p>User: <strong>${userInfo.me.name}</strong> (ID: ${userId})</p>
-                    <p>You can now upload files to Monday.com</p>
-                </div>
-            </body>
-            </html>
-        `;
-        res.send(successHtml);
+        const accessToken = tokenResponse.data.access_token;
+        const refreshToken = tokenResponse.data.refresh_token;
+        console.log('[Step 1] ✅ Token received:', accessToken ? accessToken.substring(0,15) + '...' : 'MISSING');
+
+        // Step 2: Get user info
+        console.log('\n[Step 2] Getting user info...');
+        const userResponse = await axios.post(
+            'https://api.monday.com/v2',
+            { query: 'query { me { id name email } }' },
+            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+        );
+        console.log('[Step 2] User response:', JSON.stringify(userResponse.data));
+
+        const userInfo = userResponse.data.data.me;
+        const userId = userInfo.id;
+
+        // Step 3: Save token
+        console.log('\n[Step 3] Saving token for userId:', userId);
+        const tokens = {};
+        try {
+            if (fs.existsSync('./tokens.json')) {
+                Object.assign(tokens, JSON.parse(fs.readFileSync('./tokens.json', 'utf8')));
+            }
+        } catch(e) {}
+        tokens[userId] = { access_token: accessToken, refresh_token: refreshToken, user: userInfo, saved_at: new Date().toISOString() };
+        fs.writeFileSync('./tokens.json', JSON.stringify(tokens, null, 2));
+        console.log('[Step 3] ✅ Token saved!');
+
+        res.send(`
+            <html><body style="font-family:Arial;margin:40px">
+            <h1 style="color:green">✅ 授權成功！</h1>
+            <p>用戶：<strong>${userInfo.name}</strong></p>
+            <p>User ID：<code style="background:#eee;padding:5px;font-size:18px">${userId}</code></p>
+            <p>請複製上方的 User ID，用於上傳時的 userId 參數</p>
+            </body></html>
+        `);
     } catch (error) {
-        console.error('Error in callback:', error);
-        res.status(500).json({ error: error.message });
+        console.error('\n❌ OAuth Error:', error.response?.data || error.message);
+        console.error('Status:', error.response?.status);
+        res.status(500).json({
+            error: error.message,
+            detail: error.response?.data,
+            step: error.config?.url
+        });
     }
 });
 
@@ -499,21 +547,26 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         // 獲取用戶的有效 Token
         const accessToken = await tokenManager.getValidAccessToken(userId, oauthService);
 
-        // 獲取文件公開 URL
-        const fileName = req.file.filename;
-        const fileUrl = getFilePublicUrl(fileName);
+        const fileName = req.file.originalname || req.file.filename;
+        const filePath = req.file.path;
 
-        console.log(`📤 Uploading file to Monday - File: ${fileName}, URL: ${fileUrl}`);
+        // 自動偵測或使用指定的 columnId
+        let targetColumnId = columnId;
+        if (!targetColumnId) {
+            console.log(`🔍 未指定 columnId，自動偵測 File 欄位...`);
+            targetColumnId = await autoDetectFileColumnId(boardId, accessToken);
+        }
 
-        // 添加文件到 Monday 項目
-        const result = await addFileToItem(boardId, itemId, fileUrl, accessToken);
+        // 一律使用二進制上傳（顯示縮圖）
+        console.log(`📤 Binary upload to Monday column [${targetColumnId}] - File: ${fileName}`);
+        const result = await uploadFileBinaryToColumn(itemId, targetColumnId, filePath, fileName, accessToken);
 
         res.json({
             success: true,
-            message: 'File uploaded successfully',
+            message: `文件已上傳到欄位 [${targetColumnId}]，可在看板顯示縮圖`,
             data: {
                 filename: fileName,
-                fileUrl: fileUrl,
+                columnId: targetColumnId,
                 fileSize: req.file.size,
                 mimeType: req.file.mimetype,
                 uploadedAt: new Date().toISOString(),
@@ -548,24 +601,20 @@ app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => 
         const accessToken = await tokenManager.getValidAccessToken(userId, oauthService);
         const uploadResults = [];
 
-        for (const file of req.files) {
-            const fileName = file.filename;
-            const fileUrl = getFilePublicUrl(fileName);
+        // 自動偵測 File 欄位
+        let targetColumnId = req.body.columnId;
+        if (!targetColumnId) {
+            targetColumnId = await autoDetectFileColumnId(boardId, accessToken);
+        }
 
+        for (const file of req.files) {
+            const fileName = file.originalname || file.filename;
+            const filePath = file.path;
             try {
-                const result = await addFileToItem(boardId, itemId, fileUrl, accessToken);
-                uploadResults.push({
-                    filename: fileName,
-                    fileUrl: fileUrl,
-                    status: 'success'
-                });
+                const result = await uploadFileBinaryToColumn(itemId, targetColumnId, filePath, fileName, accessToken);
+                uploadResults.push({ filename: fileName, columnId: targetColumnId, status: 'success' });
             } catch (error) {
-                uploadResults.push({
-                    filename: fileName,
-                    fileUrl: getFilePublicUrl(fileName),
-                    status: 'failed',
-                    error: error.message
-                });
+                uploadResults.push({ filename: fileName, status: 'failed', error: error.message });
             }
         }
 
@@ -760,6 +809,27 @@ app.delete('/api/files/:filename', (req, res) => {
     } catch (error) {
         console.error('Error deleting file:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== 診斷：查詢欄位類型 ====================
+
+app.get('/api/columns/:boardId', async (req, res) => {
+    try {
+        const { boardId } = req.params;
+        const userId = req.headers['x-user-id'] || req.query.userId;
+        if (!userId) return res.status(400).json({ error: '需要 X-User-ID header' });
+        const accessToken = await tokenManager.getValidAccessToken(userId, oauthService);
+        const columns = await getBoardColumns(boardId, accessToken);
+        const fileColumns = columns.filter(c => c.type === 'file');
+        res.json({
+            boardId,
+            totalColumns: columns.length,
+            fileColumns,
+            allColumns: columns.map(c => ({ id: c.id, title: c.title, type: c.type }))
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
 });
 

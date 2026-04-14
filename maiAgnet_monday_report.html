@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monday.com MCP Feature List</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f5f7; color: #333; padding: 40px 20px; }
+h1 { text-align: center; font-size: 28px; color: #1a1a2e; margin-bottom: 36px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+.card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform .15s, box-shadow .15s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.card h2 { font-size: 15px; font-weight: 700; color: #0073ea; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid #e6f0ff; }
+ul { list-style: none; }
+li { font-size: 14px; padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+.note { font-size: 12px; color: #888; display: block; margin-top: 2px; }
+.ok   { background: #e3f9e5; color: #1d7a2f; border-radius: 4px; padding: 1px 6px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.no   { background: #fdecea; color: #c0392b; border-radius: 4px; padding: 1px 6px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.warn { background: #fff8e1; color: #b8860b; border-radius: 4px; padding: 1px 6px; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+footer { text-align: center; margin-top: 40px; font-size: 12px; color: #aaa; }
+</style>
+</head>
+<body>
+<h1>Monday.com MCP Feature List</h1>
+<div class="grid">
+<div class="card"><h2>&#x1F4CB; Board Management</h2><ul><li><span class="ok">&#x2705;</span> Create new board</li><li><span class="ok">&#x2705;</span> View board list</li><li><span class="ok">&#x2705;</span> Get board details</li><li><span class="ok">&#x2705;</span> View board activity log</li><li><span class="ok">&#x2705;</span> Get board data insights</li></ul></div>
+<div class="card"><h2>&#x270F;&#xFE0F; Item / Task Management</h2><ul><li><span class="ok">&#x2705;</span> Create new item</li><li><span class="ok">&#x2705;</span> View item list</li><li><span class="ok">&#x2705;</span> Modify item field values</li><li><span class="warn">&#x26A0;&#xFE0F;</span><span>Create sub-items<span class="note">Not all boards support this. Requires &quot;Subitems&quot; column to be added first</span></span></li><li><span class="ok">&#x2705;</span> Duplicate and modify items</li></ul></div>
+<div class="card"><h2>&#x1F5C2;&#xFE0F; Column Management</h2><ul><li><span class="ok">&#x2705;</span> Create new column</li><li><span class="ok">&#x2705;</span> View column type information</li></ul></div>
+<div class="card"><h2>&#x1F4C1; Group Management</h2><ul><li><span class="ok">&#x2705;</span> Create new group</li></ul></div>
+<div class="card"><h2>&#x1F4AC; Updates / Comments</h2><ul><li><span class="ok">&#x2705;</span> Create updates / comments</li><li><span class="ok">&#x2705;</span> Reply to updates</li><li><span class="ok">&#x2705;</span> View update history</li></ul></div>
+<div class="card"><h2>&#x1F4CE; File Upload</h2><ul><li><span class="no">&#x274C;</span><span>Upload files<span class="note">API does not support direct uploads. Manual upload required via UI</span></span></li></ul></div>
+<div class="card"><h2>&#x1F465; Users and Teams</h2><ul><li><span class="ok">&#x2705;</span> View user and team information</li><li><span class="ok">&#x2705;</span> Get current user information</li></ul></div>
+<div class="card"><h2>&#x1F4DD; Form Management</h2><ul><li><span class="ok">&#x2705;</span> Create form</li><li><span class="ok">&#x2705;</span> Get form information</li><li><span class="ok">&#x2705;</span> Update form</li><li><span class="ok">&#x2705;</span> Manage form questions</li></ul></div>
+<div class="card"><h2>&#x1F4CA; Dashboard</h2><ul><li><span class="ok">&#x2705;</span> Create dashboard</li><li><span class="ok">&#x2705;</span> Create widgets</li></ul></div>
+<div class="card"><h2>&#x1F4C4; Document Management</h2><ul><li><span class="ok">&#x2705;</span> Create document</li><li><span class="ok">&#x2705;</span> Read document content</li><li><span class="ok">&#x2705;</span> Add content to document</li></ul></div>
+<div class="card"><h2>&#x1F3E2; Workspace and Folders</h2><ul><li><span class="ok">&#x2705;</span> Create workspace</li><li><span class="ok">&#x2705;</span> Update workspace</li><li><span class="ok">&#x2705;</span> Create folder</li><li><span class="ok">&#x2705;</span> Update folder</li><li><span class="ok">&#x2705;</span> Move objects</li><li><span class="ok">&#x2705;</span> View workspace content</li></ul></div>
+<div class="card"><h2>&#x1F514; Notifications</h2><ul><li><span class="ok">&#x2705;</span> Send notifications to users</li></ul></div>
+<div class="card"><h2>&#x1F50D; Search</h2><ul><li><span class="ok">&#x2705;</span> Search boards, documents, folders</li></ul></div>
+<div class="card"><h2>&#x2699;&#xFE0F; Advanced Features</h2><ul><li><span class="ok">&#x2705;</span> Execute custom GraphQL queries</li></ul></div>
+</div>
+<footer>Monday.com MCP &nbsp;|&nbsp; Generated 2026-03-26</footer>
+</body>
+</html>
