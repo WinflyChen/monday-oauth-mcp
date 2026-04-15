@@ -115,11 +115,12 @@ async function callMaiAgent(telegramUserId, userMessage) {
   const conversationId = session?.conversationId || null;
   const mondayUserId = session?.mondayUserId || null;
 
-  // First message: inject Monday userId context and rules
+  // Always inject userId context to prevent cross-user contamination
+  // (MaiAgent conversation may carry stale context from previous sessions)
   let message = userMessage;
-  if (!conversationId && mondayUserId) {
-    message = `【⚠️ 重要系統指示】
-我的 Monday.com userId 是 ${ mondayUserId}，你 MUST 在呼叫所有 Monday 工具時提供此 userId 作為參數。
+  if (mondayUserId) {
+    message = `【⚠️ 重要系統指示 — 每次都必須遵守】
+當前用戶的 Monday.com userId 是 ${mondayUserId}，你 MUST 在呼叫所有 Monday 工具時提供此 userId 作為參數。
 
 【工具呼叫要求】
 - 呼叫 monday_get_boards 時：{ "userId": "${mondayUserId}" }
@@ -131,7 +132,7 @@ async function callMaiAgent(telegramUserId, userMessage) {
 【禁止事項】
 ❌ 不要在呼叫工具時省略 userId
 ❌ 不要使用其他 userId（如有其他值，會導致跨帳號存取錯誤）
-❌ 不要猜測 userId，一定要用系統指定的值
+❌ 不要猜測 userId，一定要用系統指定的值：${mondayUserId}
 
 【Board 創建規則】
 - 使用 board_kind: "private" 建立私有看板
@@ -195,19 +196,19 @@ ${userMessage}`;
 // ============================================================================
 
 async function handleStart(chatId, telegramUserId, firstName) {
-  const name = firstName || '您';
-  await sendMessage(chatId,
-    `👋 您好，<b>${name}</b>！\n\n` +
-    `我是 Monday.com AI 助理，透過 MaiAgent 幫您管理任務。\n\n` +
-    `<b>可用指令：</b>\n` +
-    `🔐 /login — 連結您的 Monday.com 帳號\n` +
-    `📋 /boards — 查看所有看板\n` +
-    `👤 /status — 查看目前登入狀態\n` +
-    `🗑 /reset — 清除對話記憶\n` +
-    `🚪 /logout — 登出 Monday.com 帳號\n\n` +
-    `或直接輸入任何問題，例如：\n` +
-    `「列出我的所有看板」\n` +
-    `「在 XX 看板新增一個任務：YY」`
+  const name = firstName || 'there';
+  await sendMessage(chatId, // i18n-TODO
+    `👋 Hello, <b>${name}</b>!\n\n` +
+    `I'm the monday.com AI assistant powered by MaiAgent.\n\n` +
+    `<b>Available commands:</b>\n` +
+    `🔐 /login — Connect your monday.com account\n` +
+    `📋 /boards — View all boards\n` +
+    `👤 /status — Check login status\n` +
+    `🗑 /reset — Clear conversation memory\n` +
+    `🚪 /logout — Disconnect monday.com account\n\n` +
+    `Or just type any request, for example:\n` +
+    `"List all my boards"\n` +
+    `"Add a task to board XX: YY"`
   );
 }
 
@@ -218,21 +219,22 @@ async function handleLogin(chatId, telegramUserId) {
     // Send message with inline button that opens in external browser
     await axios.post(`${TELEGRAM_API}/sendMessage`, {
       chat_id: chatId,
-      text: `🔐 <b>連結 Monday.com 帳號</b>\n\n` +
-            `請點擊下方按鈕開始授權：\n\n` +
-            `系統會自動偵測您的設備並提供對應的授權方式。`,
+      text: `🔐 <b>Connect monday.com Account</b>\n\n` +
+            `Click the button below to start authorization:\n\n` +
+            `The system will detect your device and guide you accordingly.`,
+      // i18n-TODO: restore multilingual message when demo is done
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
           [
             {
-              text: '🌐 前往授權頁面',
+              text: '🌐 Go to Authorization Page', // i18n-TODO
               url: oauthUrl
             }
           ],
           [
             {
-              text: '📋 複製授權連結',
+              text: '📋 Copy Authorization Link', // i18n-TODO
               callback_data: `copy_login_${telegramUserId}`
             }
           ]
@@ -243,10 +245,10 @@ async function handleLogin(chatId, telegramUserId) {
     console.error('handleLogin error:', err.response?.data || err.message);
     // Fallback to plain text message
     await sendMessage(chatId,
-      `🔐 <b>連結 Monday.com 帳號</b>\n\n` +
-      `請點擊下方連結進行授權：\n` +
+      `🔐 <b>Connect monday.com Account</b>\n\n` + // i18n-TODO
+      `Click the link below to authorize:\n` +
       `${oauthUrl}\n\n` +
-      `授權完成後，Bot 會自動通知您。`
+      `The Bot will notify you when authorization is complete.`
     );
   }
 }
@@ -254,7 +256,7 @@ async function handleLogin(chatId, telegramUserId) {
 async function handleBoards(chatId, telegramUserId) {
   const session = getSession(telegramUserId);
   if (!session?.mondayUserId) {
-    await sendMessage(chatId, '⚠️ 尚未連結 Monday.com 帳號，請先執行 /login');
+    await sendMessage(chatId, '⚠️ monday.com account not connected. Please run /login first.'); // i18n-TODO
     return;
   }
   await sendTyping(chatId);
@@ -266,16 +268,16 @@ async function handleStatus(chatId, telegramUserId) {
   const session = getSession(telegramUserId);
   if (!session?.mondayUserId) {
     await sendMessage(chatId,
-      `📊 <b>目前狀態</b>\n\n` +
-      `Monday.com：❌ 未連結\n\n` +
-      `請執行 /login 進行授權。`
+      `📊 <b>Current Status</b>\n\n` + // i18n-TODO
+      `monday.com: ❌ Not connected\n\n` +
+      `Run /login to authorize.`
     );
   } else {
     await sendMessage(chatId,
-      `📊 <b>目前狀態</b>\n\n` +
-      `Monday.com：✅ 已連結\n` +
-      `Monday userId：<code>${session.mondayUserId}</code>\n` +
-      `對話 ID：<code>${session.conversationId || '尚未開始'}</code>`
+      `📊 <b>Current Status</b>\n\n` + // i18n-TODO
+      `monday.com: ✅ Connected\n` +
+      `Monday userId: <code>${session.mondayUserId}</code>\n` +
+      `Conversation ID: <code>${session.conversationId || 'Not started'}</code>`
     );
   }
 }
@@ -284,26 +286,26 @@ async function handleReset(chatId, telegramUserId) {
   const session = getSession(telegramUserId);
   // Keep mondayUserId, only clear conversationId
   setSession(telegramUserId, { conversationId: null });
-  await sendMessage(chatId, '🗑 對話記憶已清除，下一則訊息將重新開始新對話。');
+  await sendMessage(chatId, '🗑 Conversation memory cleared. Your next message will start a fresh conversation.'); // i18n-TODO
 }
 
 async function handleLogout(chatId, telegramUserId) {
   const session = getSession(telegramUserId);
   if (!session?.mondayUserId) {
-    await sendMessage(chatId, '⚠️ 您目前未連結任何 Monday.com 帳號。');
+    await sendMessage(chatId, '⚠️ You are not connected to any monday.com account.'); // i18n-TODO
     return;
   }
   // 完全清除用戶的 Monday 綁定和對話記憶
   setSession(telegramUserId, { mondayUserId: null, conversationId: null });
-  await sendMessage(chatId, '🚪 已登出 Monday.com 帳號。\n\n若要重新連結，請執行 /login。');
+  await sendMessage(chatId, '🚪 Logged out from monday.com.\n\nRun /login to reconnect.'); // i18n-TODO
 }
 
 async function handleTextMessage(chatId, telegramUserId, text) {
   const session = getSession(telegramUserId);
   if (!session?.mondayUserId) {
     await sendMessage(chatId,
-      '⚠️ 您尚未連結 Monday.com 帳號。\n\n' +
-      '請先執行 /login 進行授權，授權後即可開始使用。'
+      '⚠️ You have not connected your monday.com account.\n\n' + // i18n-TODO
+      'Please run /login to authorize before using the bot.'
     );
     return;
   }
@@ -402,7 +404,7 @@ app.post('/webhook', async (req, res) => {
       await handleLogout(chatId, telegramUserId);
     } else if (text.startsWith('/')) {
       await sendMessage(chatId,
-        '❓ 未知指令。可用指令：\n' +
+        '❓ Unknown command. Available commands:\n' + // i18n-TODO
         '/start /login /boards /status /reset'
       );
     } else {
@@ -410,7 +412,7 @@ app.post('/webhook', async (req, res) => {
     }
   } catch (err) {
     console.error('Error handling message:', err.message);
-    await sendMessage(chatId, '⚠️ 處理訊息時發生錯誤，請稍後再試。');
+    await sendMessage(chatId, '⚠️ An error occurred while processing your message. Please try again later.'); // i18n-TODO
   }
 });
 
@@ -461,10 +463,10 @@ app.post('/telegram/oauth-success', async (req, res) => {
   console.log(`✅ OAuth success: Telegram ${telegramUserId} → Monday ${mondayUserId}`);
 
   await sendMessage(telegramUserId,
-    `✅ <b>授權成功！</b>\n\n` +
-    `已連結 Monday.com 帳號：<b>${userName || mondayUserId}</b>\n\n` +
-    `現在可以開始查詢 Monday 資料了！\n` +
-    `試試看：輸入「列出我的看板」`
+    `✅ <b>Authorization successful!</b>\n\n` + // i18n-TODO
+    `Connected monday.com account: <b>${userName || mondayUserId}</b>\n\n` +
+    `You can now start querying monday.com data!\n` +
+    `Try typing: "List my boards"`
   );
 
   res.json({ success: true });
@@ -494,6 +496,25 @@ app.get('/health', (req, res) => {
 // ============================================================================
 
 app.listen(PORT, () => {
+  // On startup, clear all conversationIds to prevent stale AI context
+  // (mondayUserId mappings are preserved, only conversation history is reset)
+  try {
+    const sessions = loadSessions();
+    let cleared = 0;
+    for (const uid of Object.keys(sessions)) {
+      if (sessions[uid].conversationId) {
+        delete sessions[uid].conversationId;
+        cleared++;
+      }
+    }
+    if (cleared > 0) {
+      saveSessions(sessions);
+      console.log(`🔄 Cleared ${cleared} stale conversationIds on startup (userId mappings preserved)`);
+    }
+  } catch (e) {
+    console.warn('Could not clear sessions on startup:', e.message);
+  }
+
   console.log(`
 ╔════════════════════════════════════════════════════╗
 ║     Telegram Bridge Server                         ║

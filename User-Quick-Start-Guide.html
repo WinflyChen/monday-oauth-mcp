@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>使用者快速上手指南</title>
+  <title>User Quick Start Guide</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
       background: #f4f6f9;
       color: #2d3748;
       line-height: 1.7;
@@ -30,16 +30,9 @@
       font-size: 48px;
     }
 
-    .hero-arrow {
-      font-size: 24px;
-      opacity: 0.8;
-    }
+    .hero-arrow { font-size: 24px; opacity: 0.8; }
 
-    .hero h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
+    .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
 
     .hero p {
       font-size: 1.05rem;
@@ -54,7 +47,6 @@
       padding: 40px 20px 60px;
     }
 
-    /* 準備區塊 */
     .prereq {
       background: white;
       border-radius: 16px;
@@ -93,7 +85,6 @@
 
     .prereq-list li .icon { font-size: 28px; }
 
-    /* 步驟 */
     .steps { display: flex; flex-direction: column; gap: 20px; margin-bottom: 32px; }
 
     .step {
@@ -181,7 +172,12 @@
       top: 7px;
     }
 
-    /* 範例對話表格 */
+    .platform-label {
+      font-weight: 700;
+      margin: 18px 0 8px;
+      color: #2d3748;
+    }
+
     .example-table {
       width: 100%;
       border-collapse: collapse;
@@ -214,7 +210,6 @@
       color: #2b6cb0;
     }
 
-    /* 指令區 */
     .commands {
       background: white;
       border-radius: 16px;
@@ -257,7 +252,6 @@
 
     .cmd-desc { color: #4a5568; font-size: 0.93rem; }
 
-    /* FAQ */
     .faq {
       background: white;
       border-radius: 16px;
@@ -319,13 +313,6 @@
       padding: 24px;
     }
 
-    @media (max-width: 600px) {
-      .step { flex-direction: column; gap: 14px; }
-      .hero h1 { font-size: 1.5rem; }
-      .prereq-list { flex-direction: column; }
-      .download-grid { grid-template-columns: 1fr 1fr; }
-    }
-
     .download-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -353,6 +340,13 @@
     .dl-icon { font-size: 24px; flex-shrink: 0; }
     .dl-label { font-weight: 600; font-size: 0.9rem; }
     .dl-sub { font-size: 0.78rem; color: #718096; }
+
+    @media (max-width: 600px) {
+      .step { flex-direction: column; gap: 14px; }
+      .hero h1 { font-size: 1.5rem; }
+      .prereq-list { flex-direction: column; }
+      .download-grid { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -365,37 +359,37 @@
       <span class="hero-arrow">→</span>
       <span>📋</span>
     </div>
-    <h1>快速上手指南</h1>
-    <p>透過 Telegram，用自然語言操作你的 monday.com 工作區</p>
+    <h1>Quick Start Guide</h1>
+    <p>Control your monday.com workspace through Telegram using natural language</p>
   </div>
 
   <div class="container">
 
-    <!-- 準備 -->
+    <!-- Prerequisites -->
     <div class="prereq">
-      <h2>開始之前，你需要準備</h2>
+      <h2>Before You Begin</h2>
       <ul class="prereq-list">
         <li>
           <span class="icon">✈️</span>
           <div>
-            <div style="font-weight:700">Telegram 帳號</div>
-            <div style="font-size:0.85rem;color:#718096">手機或電腦版皆可</div>
+            <div style="font-weight:700">Telegram Account</div>
+            <div style="font-size:0.85rem;color:#718096">Mobile or desktop</div>
           </div>
         </li>
         <li>
           <span class="icon">📋</span>
           <div>
-            <div style="font-weight:700">monday.com 帳號</div>
-            <div style="font-size:0.85rem;color:#718096">需有實際資料的帳號</div>
+            <div style="font-weight:700">monday.com Account</div>
+            <div style="font-size:0.85rem;color:#718096">With actual workspace data</div>
           </div>
         </li>
       </ul>
     </div>
 
-    <!-- 安裝 Telegram -->
+    <!-- Install Telegram -->
     <div class="prereq" style="margin-bottom:32px">
-      <h2>安裝 Telegram</h2>
-      <p style="color:#4a5568;margin-bottom:16px">如果你還沒有安裝 Telegram，請先下載並用手機號碼註冊帳號：</p>
+      <h2>Install Telegram</h2>
+      <p style="color:#4a5568;margin-bottom:16px">If you haven't installed Telegram yet, download it and register with your phone number:</p>
       <div class="download-grid">
         <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank" class="dl-btn">
           <span class="dl-icon">📱</span>
@@ -411,23 +405,23 @@
         </a>
         <a href="https://desktop.telegram.org/" target="_blank" class="dl-btn">
           <span class="dl-icon">🖥️</span>
-          <div><div class="dl-label">Windows</div><div class="dl-sub">官方桌面版</div></div>
+          <div><div class="dl-label">Windows</div><div class="dl-sub">Official Desktop</div></div>
         </a>
         <a href="https://web.telegram.org/" target="_blank" class="dl-btn">
           <span class="dl-icon">🌐</span>
-          <div><div class="dl-label">網頁版</div><div class="dl-sub">web.telegram.org</div></div>
+          <div><div class="dl-label">Web</div><div class="dl-sub">web.telegram.org</div></div>
         </a>
       </div>
     </div>
 
-    <!-- 步驟 -->
+    <!-- Steps -->
     <div class="steps">
 
       <div class="step">
         <div class="step-number">1</div>
         <div class="step-content">
-          <h2>找到 Bot</h2>
-          <p>在 Telegram 搜尋欄輸入以下名稱，點擊進入對話：</p>
+          <h2>Find the Bot</h2>
+          <p>Search for the following in the Telegram search bar and open the conversation:</p>
           <div class="code-block">@igroup_kevin_bot</div>
         </div>
       </div>
@@ -435,83 +429,83 @@
       <div class="step">
         <div class="step-number">2</div>
         <div class="step-content">
-          <h2>啟動 Bot</h2>
-          <p>進入對話後，發送以下訊息：</p>
+          <h2>Start the Bot</h2>
+          <p>Send the following message:</p>
           <div class="code-block">/start</div>
-          <p style="margin-top:10px">Bot 會歡迎你，並提示你需要先登入才能使用。</p>
+          <p style="margin-top:10px">The Bot will greet you and prompt you to log in before you can use it.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-number">3</div>
         <div class="step-content">
-          <h2>連結你的 monday.com 帳號</h2>
-          <p>發送以下訊息：</p>
+          <h2>Connect Your monday.com Account</h2>
+          <p>Send the following message:</p>
           <div class="code-block">/login</div>
-          <p style="margin-top:10px">Bot 會回傳一個授權連結，點擊後會跳轉到 monday.com 的授權頁面。</p>
-          <div class="note">📌 這個步驟只需要做<strong>一次</strong>。之後每次使用不需要重新登入。</div>
+          <p style="margin-top:10px">The Bot will return an authorization link. Tap it to go to the monday.com authorization page.</p>
+          <div class="note">📌 This step only needs to be done <strong>once</strong>. You won't need to log in again after that.</div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-number">4</div>
         <div class="step-content">
-          <h2>在 monday.com 授權</h2>
+          <h2>Authorize on monday.com</h2>
 
-          <p style="font-weight:700; margin-bottom:8px;">💻 電腦版</p>
+          <div class="platform-label">💻 Desktop</div>
           <ul class="step-list">
-            <li>點擊 Bot 傳來的連結，頁面直接開啟 monday.com 授權</li>
-            <li>如果尚未登入，先用帳號密碼登入</li>
-            <li>看到「Authorize」或「允許」按鈕，點擊確認</li>
-            <li>頁面顯示「Authorization Successful」代表成功了</li>
-            <li>回到 Telegram，Bot 會通知你已完成連結</li>
+            <li>Click the link sent by the Bot — the monday.com authorization page will open directly</li>
+            <li>If not logged in, sign in with your email and password</li>
+            <li>Click "Authorize" or "Allow" to confirm</li>
+            <li>When the page shows "Authorization Successful", you're done</li>
+            <li>Return to Telegram — the Bot will notify you that the connection is complete</li>
           </ul>
 
-          <div style="margin:18px 0 10px; font-weight:700;">📱 Android Chrome</div>
+          <div class="platform-label">🤖 Android Chrome</div>
           <ul class="step-list">
-            <li>點連結進入授權頁面，點「前往 monday.com 授權」</li>
-            <li>若出現「Open in Browser」對話框，勾選 <strong>Always open links from auth.monday.com in browser</strong> 再點 Continue</li>
-            <li>被導到下載頁後，點右上角 <strong>⋮</strong> 選單 → 選 <strong>Open in...</strong></li>
-            <li>啟用「<strong>桌面版網站（Desktop site）</strong>」✓</li>
-            <li>重新整理，看到 monday.com 登入表單，完成授權</li>
+            <li>Tap the Bot's link, enter the authorization page, then tap "Go to monday.com Authorization"</li>
+            <li>If an "Open in Browser" dialog appears, check <strong>"Always open links from auth.monday.com in browser"</strong> then tap Continue</li>
+            <li>When redirected to the download page, tap the <strong>⋮</strong> menu in the top-right corner → select <strong>"Open in..."</strong></li>
+            <li>Enable <strong>"Desktop site"</strong> ✓</li>
+            <li>Refresh the page — you should now see the monday.com login form. Complete authorization.</li>
           </ul>
 
-          <div style="margin:18px 0 10px; font-weight:700;">🍎 iOS Safari</div>
+          <div class="platform-label">🍎 iOS Safari</div>
           <ul class="step-list">
-            <li>點連結進入授權頁面，點「前往 monday.com 授權」</li>
-            <li>被導到下載頁後，點右下角 <strong>↑↓</strong> 分享按鈕</li>
-            <li>選擇「<strong>Open in...</strong>」→ 啟用「<strong>以桌面版方式查看網站</strong>」✓</li>
-            <li>重新整理，看到 monday.com 登入表單，完成授權</li>
+            <li>Tap the Bot's link, enter the authorization page, then tap "Go to monday.com Authorization"</li>
+            <li>When redirected to the download page, tap the <strong>↑↓</strong> share button at the bottom</li>
+            <li>Select <strong>"Open in..."</strong> → enable <strong>"Request Desktop Website"</strong> ✓</li>
+            <li>Refresh the page — you should now see the monday.com login form. Complete authorization.</li>
           </ul>
 
-          <div class="note">💡 手機版需要啟用桌面模式，是因為 monday.com 會偵測手機 User-Agent 並強制導向 App 下載頁。桌面模式可讓瀏覽器繞過這個限制。</div>
+          <div class="note">💡 Enabling desktop mode makes monday.com treat your mobile browser as a desktop device, bypassing the mobile redirect and loading the authorization form correctly.</div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-number">5</div>
         <div class="step-content">
-          <h2>開始使用</h2>
-          <p>授權完成後，直接用中文跟 Bot 說話：</p>
+          <h2>Start Using</h2>
+          <p>After authorization, just talk to the Bot in natural language:</p>
           <table class="example-table">
             <thead>
               <tr>
-                <th>你說的話</th>
-                <th>Bot 會做的事</th>
+                <th>What you say</th>
+                <th>What the Bot does</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><span class="user-msg">幫我列出我的所有 board</span></td>
-                <td>顯示你的 monday.com 工作板清單</td>
+                <td><span class="user-msg">List all my boards</span></td>
+                <td>Shows your monday.com board list</td>
               </tr>
               <tr>
-                <td><span class="user-msg">建立一個叫「行銷企劃」的 board</span></td>
-                <td>在你的工作區新增一個 board</td>
+                <td><span class="user-msg">Create a board called "Marketing Plan"</span></td>
+                <td>Adds a new board to your workspace</td>
               </tr>
               <tr>
-                <td><span class="user-msg">我的板子有哪些</span></td>
-                <td>列出所有 board 名稱與連結</td>
+                <td><span class="user-msg">What boards do I have?</span></td>
+                <td>Lists all board names and links</td>
               </tr>
             </tbody>
           </table>
@@ -520,78 +514,78 @@
 
     </div>
 
-    <!-- 常用指令 -->
+    <!-- Commands -->
     <div class="commands">
-      <h2>常用指令</h2>
+      <h2>Common Commands</h2>
       <div class="cmd-grid">
         <div class="cmd-item">
           <span class="cmd-tag">/start</span>
-          <span class="cmd-desc">啟動 Bot</span>
+          <span class="cmd-desc">Start the Bot</span>
         </div>
         <div class="cmd-item">
           <span class="cmd-tag">/login</span>
-          <span class="cmd-desc">連結 monday.com 帳號</span>
+          <span class="cmd-desc">Connect monday.com account</span>
         </div>
         <div class="cmd-item">
           <span class="cmd-tag">/status</span>
-          <span class="cmd-desc">查看目前的登入狀態</span>
+          <span class="cmd-desc">Check current login status</span>
         </div>
         <div class="cmd-item">
           <span class="cmd-tag">/reset</span>
-          <span class="cmd-desc">清除登入狀態（切換帳號）</span>
+          <span class="cmd-desc">Clear login state (switch accounts)</span>
         </div>
       </div>
     </div>
 
-    <!-- 常見問題 -->
+    <!-- FAQ -->
     <div class="faq">
-      <h2>常見問題</h2>
+      <h2>FAQ</h2>
 
       <div class="faq-item">
         <div class="faq-q">
           <span class="q-badge">Q</span>
-          <span>點授權連結出現「無法連上這個網站」？</span>
+          <span>The authorization link shows "Cannot reach this site"?</span>
         </div>
-        <div class="faq-a">連結可能已過期，重新發送 <code>/login</code> 取得新的連結。</div>
+        <div class="faq-a">The link may have expired. Send <code>/login</code> again to get a new one.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">
           <span class="q-badge">Q</span>
-          <span>Bot 沒有回應我的訊息？</span>
+          <span>The Bot is not responding to my messages?</span>
         </div>
-        <div class="faq-a">先發送 <code>/status</code> 確認是否已登入。若未登入，重新執行 <code>/login</code>。</div>
+        <div class="faq-a">Send <code>/status</code> first to confirm you're logged in. If not, run <code>/login</code> again.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">
           <span class="q-badge">Q</span>
-          <span>我可以在多個裝置使用嗎？</span>
+          <span>Can I use it on multiple devices?</span>
         </div>
-        <div class="faq-a">可以。只要在同一個 Telegram 帳號下都能使用，授權只需做一次。</div>
+        <div class="faq-a">Yes. As long as you use the same Telegram account, authorization only needs to be done once.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">
           <span class="q-badge">Q</span>
-          <span>手機點連結一直跑到 App 下載頁怎麼辦？</span>
+          <span>My mobile keeps going to the App download page — what do I do?</span>
         </div>
-        <div class="faq-a">這是 monday.com 的行動端偵測機制。請在手機瀏覽器選單中啟用「桌面版網站」模式，詳細步驟請看上方步驟四的手機版說明。Android 請點 <code>⋮ → Open in...</code>，iOS 請點 <code>↑↓ → Open in...</code>。</div>
+        <div class="faq-a">This is monday.com's mobile detection mechanism. Enable "Desktop site" mode in your mobile browser. For Android tap <code>⋮ → Open in...</code>, for iOS tap <code>↑↓ → Open in...</code>. See Step 4 for full details.</div>
       </div>
 
       <div class="faq-item">
         <div class="faq-q">
           <span class="q-badge">Q</span>
-          <span>我的 monday.com 資料安全嗎？</span>
+          <span>Is my monday.com data safe?</span>
         </div>
-        <div class="faq-a">Bot 只會使用你授權的權限讀取／操作資料，不會儲存你的帳號密碼。</div>
+        <div class="faq-a">The Bot only uses the permissions you authorized to read/operate data. Your account password is never stored.</div>
       </div>
 
     </div>
 
   </div>
 
-  <footer>monday maiagent mcp &nbsp;·&nbsp; 如有問題請聯絡管理員</footer>
+  <footer>monday · maiagent · mcp &nbsp;·&nbsp; Contact your administrator for support</footer>
 
 </body>
 </html>

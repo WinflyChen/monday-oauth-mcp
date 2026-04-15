@@ -587,7 +587,7 @@ app.get('/oauth/authorize', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>連結 Monday.com 帳號</title>
+  <title>連結 monday.com 帳號</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -753,62 +753,42 @@ app.get('/oauth/authorize', (req, res) => {
 <body>
   <div class="card">
     <div class="logo">📋</div>
-    <h1>連結 Monday.com 帳號</h1>
-    <p>點擊下方按鈕，在瀏覽器中完成 Monday.com 授權。</p>
-    <a class="btn" href="${authUrl}" target="_blank" rel="noopener">前往 Monday.com 授權</a>
+    <h1>Connect monday.com Account</h1>
+    <p>Tap the button below to authorize monday.com in your browser.</p>
+    <a class="btn" href="${authUrl}" target="_blank" rel="noopener">Go to monday.com Authorization</a>
 
-    <div class="divider">Android 手機專用</div>
-
-    <div class="android-box">
-      <div class="title">📱 點按鈕後被導到 App 下載頁？</div>
-      <div class="desc">這是 Android 系統攔截造成的。點下方按鈕可直接在 Chrome 開啟授權頁面：</div>
-      <button class="chrome-btn" onclick="openInChrome()">在 Chrome 中開啟授權頁面</button>
-      <div class="copy-row">
-        <span class="copy-label">或手動複製網址貼到 Chrome：</span>
-        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">複製網址</button>
-      </div>
-  <div class="card">
-    <div class="logo">📋</div>
-    <h1>連結 Monday.com 帳號</h1>
-    <p>點擊下方按鈕，在瀏覽器中完成 Monday.com 授權。</p>
-    <a class="btn" href="${authUrl}" target="_blank" rel="noopener">前往 Monday.com 授權</a>
-
-    <div class="divider">Android 手機專用</div>
+    <div class="divider">Android Users</div>
 
     <div class="android-box">
-      <div class="title">📱 被導到 App 下載頁？</div>
-      <div class="desc">Monday.com 的行動端檢測會強制重定向。請使用以下方法：</div>
-      
-      <button class="chrome-btn" onclick="openInDesktopMode()">
-        🌐 在網頁版中開啟授權
-      </button>
-      
+      <div class="title">📱 Redirected to the App download page?</div>
+      <div class="desc">This is caused by Android intercepting the link. Tap below to open directly in Chrome:</div>
+      <button class="chrome-btn" onclick="openInDesktopMode()">Open in Chrome</button>
       <div class="copy-row">
-        <span class="copy-label">或複製連結到 Chrome：</span>
-        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">複製</button>
+        <span class="copy-label">Or copy the URL and paste into Chrome:</span>
+        <button class="copy-btn" id="copyBtn" onclick="copyUrl()">Copy URL</button>
       </div>
     </div>
 
-    <div class="divider">若仍無法成功</div>
-    
+    <div class="divider">If it still doesn't work</div>
+
     <div class="android-box" style="background: #fff5f5; border-color: #fc8181;">
-      <div class="title" style="color: #c53030;">🔧 手動啟用「桌面模式」</div>
-      <div class="desc">這是最可靠的解決方案：</div>
-      
+      <div class="title" style="color: #c53030;">🔧 Enable Desktop Mode manually</div>
+      <div class="desc">This is the most reliable solution:</div>
+
       <ol style="text-align: left; font-size: 0.9rem; line-height: 1.8; color: #2d3748;">
-        <li>複製授權網址（點上方「複製」按鈕）</li>
-        <li>開啟 <strong>Google Chrome</strong></li>
-        <li>在網址列貼上網址，<strong>但不要按Enter</strong></li>
-        <li>點擊網址列右側的「⋮」（三點選單）</li>
-        <li>向下捲動找到「<strong>桌面版網站</strong>」</li>
-        <li>點擊勾選「桌面版網站」 ✓</li>
-        <li>現在按 <strong>Enter</strong> 開啟授權頁面</li>
-        <li>應該看到 Monday.com 授權表單（而非下載頁面）</li>
+        <li>Copy the authorization URL (tap "Copy URL" above)</li>
+        <li>Open <strong>Google Chrome</strong></li>
+        <li>Paste the URL in the address bar, <strong>but don't press Enter yet</strong></li>
+        <li>Tap the <strong>⋮</strong> menu in the top-right corner</li>
+        <li>Scroll down to find "<strong>Desktop site</strong>"</li>
+        <li>Toggle on "<strong>Desktop site</strong>" ✓</li>
+        <li>Now press <strong>Enter</strong> to open the page</li>
+        <li>You should see the monday.com login form (not the download page)</li>
       </ol>
     </div>
 
     <p class="note" style="margin-top: 20px;">
-      ✅ 授權完成後會自動回傳 Telegram，無需手動返回
+      ✅ After authorization you will be redirected back to Telegram automatically
     </p>
   </div>
   <script>
@@ -844,15 +824,181 @@ app.get('/oauth/authorize', (req, res) => {
     }
 
     function showCopied() {
-      const btn = document.getElementById('copyBtn');
-      btn.textContent = '已複製 ✓';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('copied'); }, 2000);
+      showCopied2();
     }
 
-    // Auto-detect mobile and show warning
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      console.log('Mobile device detected');
+    // ── i18n ──────────────────────────────────────────────────────────
+    const i18n = {
+      'zh': {
+        title:        '連結 monday.com 帳號',
+        desc:         '點擊下方按鈕，在瀏覽器中完成 monday.com 授權。',
+        authBtn:      '前往 monday.com 授權',
+        divider1:     'Android 手機專用',
+        androidTitle: '📱 點按鈕後被導到 App 下載頁？',
+        androidDesc:  '這是 Android 系統攔截造成的。點下方按鈕可直接在 Chrome 開啟授權頁面：',
+        chromeBtn:    '在 Chrome 中開啟授權頁面',
+        copyLabel:    '或手動複製網址貼到 Chrome：',
+        copyBtn:      '複製網址',
+        copiedBtn:    '已複製 ✓',
+        divider2:     '若仍無法成功',
+        desktopTitle: '🔧 手動啟用「桌面模式」',
+        desktopDesc:  '這是最可靠的解決方案：',
+        steps: [
+          '複製授權網址（點上方「複製」按鈕）',
+          '開啟 <strong>Google Chrome</strong>',
+          '在網址列貼上網址，<strong>但不要按Enter</strong>',
+          '點擊網址列右側的「⋮」（三點選單）',
+          '向下捲動找到「<strong>桌面版網站</strong>」',
+          '點擊勾選「桌面版網站」 ✓',
+          '現在按 <strong>Enter</strong> 開啟授權頁面',
+          '應該看到 monday.com 授權表單（而非下載頁面）'
+        ],
+        note: '✅ 授權完成後會自動回傳 Telegram，無需手動返回'
+      },
+      'en': {
+        title:        'Connect monday.com Account',
+        desc:         'Tap the button below to authorize monday.com in your browser.',
+        authBtn:      'Go to monday.com Authorization',
+        divider1:     'Android Users',
+        androidTitle: '📱 Redirected to the App Store?',
+        androidDesc:  'This is caused by Android intercepting the link. Tap below to open directly in Chrome:',
+        chromeBtn:    'Open in Chrome',
+        copyLabel:    'Or copy the URL and paste into Chrome:',
+        copyBtn:      'Copy URL',
+        copiedBtn:    'Copied ✓',
+        divider2:     'If it still doesn\'t work',
+        desktopTitle: '🔧 Enable Desktop Mode manually',
+        desktopDesc:  'This is the most reliable solution:',
+        steps: [
+          'Copy the authorization URL (tap "Copy URL" above)',
+          'Open <strong>Google Chrome</strong>',
+          'Paste the URL in the address bar, <strong>but don\'t press Enter yet</strong>',
+          'Tap the <strong>⋮</strong> menu in the top-right corner',
+          'Scroll down to find "<strong>Desktop site</strong>"',
+          'Toggle on "<strong>Desktop site</strong>" ✓',
+          'Now press <strong>Enter</strong> to open the page',
+          'You should see the monday.com login form (not the download page)'
+        ],
+        note: '✅ After authorization you will be redirected back to Telegram automatically'
+      },
+      'ja': {
+        title:        'monday.com アカウントを連携',
+        desc:         '下のボタンをタップして、ブラウザで monday.com の認証を完了してください。',
+        authBtn:      'monday.com 認証へ',
+        divider1:     'Android ユーザー向け',
+        androidTitle: '📱 アプリのダウンロードページに飛ばされましたか？',
+        androidDesc:  'Android がリンクを横取りしています。下のボタンで Chrome に直接開けます：',
+        chromeBtn:    'Chrome で開く',
+        copyLabel:    'またはURLをコピーして Chrome に貼り付け：',
+        copyBtn:      'URLをコピー',
+        copiedBtn:    'コピーしました ✓',
+        divider2:     'うまくいかない場合',
+        desktopTitle: '🔧 「PC版サイト」を手動で有効にする',
+        desktopDesc:  '最も確実な方法：',
+        steps: [
+          '認証URLをコピー（上のボタンをタップ）',
+          '<strong>Google Chrome</strong> を開く',
+          'アドレスバーにURLを貼り付け（<strong>Enterはまだ押さない</strong>）',
+          '右上の <strong>⋮</strong> メニューをタップ',
+          '下にスクロールして「<strong>PC版サイト</strong>」を探す',
+          '「PC版サイト」をオン ✓',
+          '<strong>Enter</strong> を押してページを開く',
+          'monday.com のログィンフォームが表示されるはずです'
+        ],
+        note: '✅ 認証完了後、自動で Telegram に戻ります'
+      },
+      'ko': {
+        title:        'monday.com 계정 연결',
+        desc:         '아래 버튼을 눌러 브라우저에서 monday.com 인증을 완료하세요.',
+        authBtn:      'monday.com 인증으로 이동',
+        divider1:     'Android 사용자 전용',
+        androidTitle: '📱 앱 다운로드 페이지로 이동됐나요?',
+        androidDesc:  'Android가 링크를 가로챈 것입니다. 아래 버튼으로 Chrome에서 바로 열 수 있습니다:',
+        chromeBtn:    'Chrome에서 열기',
+        copyLabel:    '또는 URL을 복사하여 Chrome에 붙여넣기:',
+        copyBtn:      'URL 복사',
+        copiedBtn:    '복사됨 ✓',
+        divider2:     '그래도 안 될 경우',
+        desktopTitle: '🔧 데스크톱 모드 수동 활성화',
+        desktopDesc:  '가장 확실한 방법:',
+        steps: [
+          '인증 URL 복사 (위의 복사 버튼 탭)',
+          '<strong>Google Chrome</strong> 열기',
+          '주소창에 URL 붙여넣기 (<strong>Enter는 아직 누르지 마세요</strong>)',
+          '오른쪽 상단 <strong>⋮</strong> 메뉴 탭',
+          '스크롤하여 "<strong>데스크톱 버전</strong>" 찾기',
+          '"<strong>데스크톱 버전</strong>" 켜기 ✓',
+          '<strong>Enter</strong>를 눌러 페이지 열기',
+          'monday.com 로그인 폼이 표시되어야 합니다'
+        ],
+        note: '✅ 인증 완료 후 자동으로 Telegram으로 돌아갑니다'
+      }
+    };
+
+    function getLang() {
+      // DEMO MODE: force English — restore auto-detect when ready:
+      // const lang = (navigator.languages?.[0] || navigator.language || 'zh').toLowerCase();
+      // if (lang.startsWith('ja')) return 'ja';
+      // if (lang.startsWith('ko')) return 'ko';
+      // if (lang.startsWith('en')) return 'en';
+      // return 'zh';
+      return 'en';
+    }
+
+    function applyI18n() {
+      const t = i18n[getLang()];
+      const q = (sel) => document.querySelector(sel);
+      const qa = (sel) => document.querySelectorAll(sel);
+
+      document.title = t.title;
+      qa('h1').forEach(el => el.textContent = t.title);
+      qa('p:not(.note)').forEach(el => { if (el.closest('.card') && !el.closest('.android-box')) el.textContent = t.desc; });
+
+      // Main auth buttons
+      qa('a.btn').forEach(el => el.textContent = t.authBtn);
+
+      // Dividers
+      const dividers = qa('.divider');
+      if (dividers[0]) dividers[0].textContent = t.divider1;
+      if (dividers[1]) dividers[1].textContent = t.divider2;
+
+      // Android box (first one)
+      const boxes = qa('.android-box');
+      if (boxes[0]) {
+        const titleEl = boxes[0].querySelector('.title');
+        const descEl  = boxes[0].querySelector('.desc');
+        if (titleEl) titleEl.textContent = t.androidTitle;
+        if (descEl)  descEl.textContent  = t.androidDesc;
+        const chromeBtn = boxes[0].querySelector('.chrome-btn');
+        if (chromeBtn) chromeBtn.textContent = t.chromeBtn;
+        const copyLbl = boxes[0].querySelector('.copy-label');
+        if (copyLbl) copyLbl.textContent = t.copyLabel;
+        const copyBtn = boxes[0].querySelector('.copy-btn');
+        if (copyBtn) { copyBtn.textContent = t.copyBtn; copyBtn._i18n = t; }
+      }
+
+      // Desktop mode box (second android-box with red bg)
+      if (boxes[1]) {
+        const titleEl = boxes[1].querySelector('.title');
+        const descEl  = boxes[1].querySelector('.desc');
+        if (titleEl) titleEl.textContent = t.desktopTitle;
+        if (descEl)  descEl.textContent  = t.desktopDesc;
+        const items = boxes[1].querySelectorAll('li');
+        items.forEach((li, i) => { if (t.steps[i]) li.innerHTML = t.steps[i]; });
+      }
+
+      // Note
+      qa('.note').forEach(el => el.textContent = t.note);
+    }
+
+    document.addEventListener('DOMContentLoaded', applyI18n);
+
+    function showCopied2() {
+      const btn = document.getElementById('copyBtn');
+      const t = i18n[getLang()];
+      btn.textContent = t.copiedBtn;
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = t.copyBtn; btn.classList.remove('copied'); }, 2000);
     }
   </script>
 </body>
@@ -956,10 +1102,10 @@ app.get('/oauth/desktop-redirect', async (req, res) => {
 <body>
   <div class="container">
     <div class="spinner"></div>
-    <h1>開啟授權頁面中...</h1>
-    <p>系統正在以桌面模式與 Monday.com 連接</p>
-    <div class="hint">⏳ 如果頁面未自動跳轉，請點擊下方按鈕</div>
-    <button id="fallbackBtn" style="margin-top:20px; padding:12px 24px; background:white; color:#667eea; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; display:none;">點擊開啟授權頁面</button>
+    <h1>Opening Authorization Page...</h1>
+    <p>Connecting to monday.com in desktop mode</p>
+    <div class="hint">⏳ If the page doesn't redirect automatically, tap the button below</div>
+    <button id="fallbackBtn" style="margin-top:20px; padding:12px 24px; background:white; color:#667eea; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; display:none;">Open Authorization Page</button>
   </div>
 
   <script>
